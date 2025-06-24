@@ -12,4 +12,8 @@ node_modules
 coverage
 dist
 build
-.vercel 
+.vercel
+server
+shared
+drizzle.config.ts
+tsconfig.json 
