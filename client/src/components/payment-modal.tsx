@@ -86,8 +86,7 @@ export function PaymentModal({ isOpen, onClose, onSuccess, cvDataId, amount }: P
 
   const customization = {
     paymentMethods: {
-      creditCard: "all",
-      debitCard: "all",
+      pix: "all",
     },
   };
 
@@ -117,12 +116,7 @@ export function PaymentModal({ isOpen, onClose, onSuccess, cvDataId, amount }: P
                 amount: amount,
                 preferenceId: preferenceId,
               }}
-              customization={{
-                paymentMethods: {
-                  creditCard: "all",
-                  debitCard: "all",
-                }
-              }}
+              customization={customization}
               onSubmit={async () => {
                  onSuccess(); 
               }}
