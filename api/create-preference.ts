@@ -45,7 +45,7 @@ export default async function handler(req: any, res: any) {
             installments: 1
         },
         external_reference: cvDataId.toString(),
-        notification_url: `${process.env.NEXT_PUBLIC_API_URL}/api/payment-webhook`,
+        notification_url: `${process.env.API_URL}/api/payment-webhook`,
       },
     });
 
