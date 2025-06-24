@@ -247,12 +247,12 @@ export default function Home() {
                 <span className="text-xl font-semibold text-incluo-navy">Incluo Talentos</span>
               </div>
             </div>
-            <nav className="hidden md:flex space-x-8">
-              <a href="#" className="text-incluo-gray hover:text-incluo-navy transition-colors">Manifesto</a>
-              <a href="#" className="text-incluo-gray hover:text-incluo-navy transition-colors">Quem Somos</a>
-              <a href="#" className="text-incluo-gray hover:text-incluo-navy transition-colors">Para Empresas</a>
-              <Button className="bg-incluo-orange hover:bg-incluo-orange/90 text-white">
-                Contato
+            <nav className="hidden md:flex items-center space-x-8">
+              <a href="#manifesto" className="text-incluo-gray hover:text-incluo-navy transition-colors">Manifesto</a>
+              <a href="#beneficios" className="text-incluo-gray hover:text-incluo-navy transition-colors">Benefícios</a>
+              <a href="#precos" className="text-incluo-gray hover:text-incluo-navy transition-colors">Preços</a>
+              <Button onClick={handleStartWizard} className="bg-incluo-orange hover:bg-incluo-orange/90 text-white font-bold shadow-lg px-6 py-2 rounded-lg border-2 border-incluo-orange hover:scale-105 transition-all">
+                Inicie já
               </Button>
             </nav>
           </div>
@@ -284,14 +284,7 @@ export default function Home() {
                   className="bg-incluo-orange hover:bg-incluo-orange/90 text-white px-8 py-4 h-auto font-semibold shadow-lg transform hover:scale-105 transition-all"
                 >
                   <Play className="mr-2" size={16} />
-                  Entre em contato
-                </Button>
-                <Button
-                  variant="outline"
-                  className="border-2 border-incluo-teal text-incluo-teal hover:bg-incluo-teal hover:text-white px-8 py-4 h-auto font-semibold transition-all"
-                >
-                  <Eye className="mr-2" size={16} />
-                  Para empresas
+                  Inicie já
                 </Button>
               </div>
               <div className="flex items-center space-x-6 text-sm text-incluo-gray">
@@ -373,43 +366,82 @@ export default function Home() {
       )}
 
       {/* Features Section */}
-      <section className="py-16 bg-gray-50">
+      <section id="beneficios" className="py-16 bg-gradient-to-br from-white to-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-incluo-navy mb-4">Por que escolher o Destaca CV?</h2>
+            <h2 className="text-3xl font-bold text-incluo-navy mb-4">Benefícios Exclusivos para Você</h2>
             <p className="text-lg text-incluo-gray max-w-2xl mx-auto">
-              Nossa tecnologia cria documentos profissionais otimizados para destacar seus talentos no mercado de trabalho.
+              Potencialize sua carreira com um currículo profissional, acessível e pronto para destacar seus talentos. Simples, rápido e acessível para todos!
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center p-6">
+            <div className="text-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow">
               <div className="w-16 h-16 bg-incluo-orange rounded-full flex items-center justify-center mx-auto mb-4">
                 <Sparkles className="text-white" size={32} />
               </div>
-              <h3 className="text-xl font-semibold text-incluo-navy mb-3">Geração Automática</h3>
+              <h3 className="text-xl font-semibold text-incluo-navy mb-3">Currículo Profissional</h3>
               <p className="text-incluo-gray">
-                Algoritmo inteligente cria automaticamente seu currículo, resumo LinkedIn e carta de apresentação.
+                Seu currículo pronto em minutos, com design moderno e otimizado para recrutadores.
               </p>
             </div>
-            <div className="text-center p-6">
+            <div className="text-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow">
               <div className="w-16 h-16 bg-incluo-teal rounded-full flex items-center justify-center mx-auto mb-4">
                 <Shield className="text-white" size={32} />
               </div>
-              <h3 className="text-xl font-semibold text-incluo-navy mb-3">100% Acessível</h3>
+              <h3 className="text-xl font-semibold text-incluo-navy mb-3">Acessibilidade Total</h3>
               <p className="text-incluo-gray">
-                Templates seguem padrões de acessibilidade, garantindo que seu currículo seja lido por todos.
+                Documentos acessíveis para todos, seguindo os mais altos padrões de inclusão.
               </p>
             </div>
-            <div className="text-center p-6">
+            <div className="text-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow">
               <div className="w-16 h-16 bg-incluo-orange rounded-full flex items-center justify-center mx-auto mb-4">
                 <Clock className="text-white" size={32} />
               </div>
-              <h3 className="text-xl font-semibold text-incluo-navy mb-3">Entrega Rápida</h3>
+              <h3 className="text-xl font-semibold text-incluo-navy mb-3">Entrega Imediata</h3>
               <p className="text-incluo-gray">
-                Receba tudo por email em até 5 minutos após a confirmação do pagamento.
+                Receba seu currículo e documentos extras no seu e-mail em até 5 minutos após o pagamento.
               </p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Preços Section */}
+      <section id="precos" className="py-16 bg-incluo-teal/10">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold text-incluo-navy mb-4">Preço Especial de Lançamento</h2>
+          <p className="text-lg text-incluo-gray mb-8">Tenha acesso a todos os benefícios por um valor simbólico. Invista no seu futuro agora mesmo!</p>
+          <div className="inline-block bg-white rounded-2xl shadow-lg px-12 py-10 mb-8 border-4 border-incluo-orange">
+            <span className="block text-incluo-gray text-lg mb-2">Apenas</span>
+            <span className="text-5xl font-extrabold text-incluo-orange mb-2 block">R$ 4,97</span>
+            <span className="block text-incluo-navy font-medium mb-4">Pagamento único, acesso imediato</span>
+            <Button
+              onClick={handleStartWizard}
+              className="bg-incluo-orange hover:bg-incluo-orange/90 text-white font-bold px-10 py-4 rounded-lg text-lg shadow-lg hover:scale-105 transition-all mt-2"
+            >
+              Quero meu currículo agora!
+            </Button>
+          </div>
+          <div className="flex flex-col sm:flex-row justify-center gap-6 text-incluo-gray text-sm">
+            <div className="flex items-center justify-center"><Check className="text-green-500 mr-2" size={16} />Currículo Profissional</div>
+            <div className="flex items-center justify-center"><Check className="text-green-500 mr-2" size={16} />Resumo LinkedIn</div>
+            <div className="flex items-center justify-center"><Check className="text-green-500 mr-2" size={16} />Carta de Apresentação</div>
+            <div className="flex items-center justify-center"><Check className="text-green-500 mr-2" size={16} />Entrega em até 5 minutos</div>
+          </div>
+        </div>
+      </section>
+
+      {/* Manifesto Section */}
+      <section id="manifesto" className="py-16 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold text-incluo-navy mb-4">Manifesto Incluo Talentos</h2>
+          <p className="text-lg text-incluo-gray mb-6">
+            Acreditamos que a diversidade é a força que move o futuro do trabalho. Nosso compromisso é tornar o acesso ao mercado mais justo, humano e inclusivo, conectando talentos de todas as origens a oportunidades reais.
+          </p>
+          <p className="text-incluo-navy text-xl font-semibold mb-4">Juntos, transformamos inclusão em realidade!</p>
+          <Button onClick={handleStartWizard} className="bg-incluo-orange hover:bg-incluo-orange/90 text-white font-bold px-10 py-4 rounded-lg text-lg shadow-lg hover:scale-105 transition-all mt-2">
+            Quero fazer parte dessa mudança
+          </Button>
         </div>
       </section>
 
