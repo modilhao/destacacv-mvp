@@ -28,6 +28,7 @@ export default function Home() {
       linkedin: "",
       address: "",
       summary: "",
+      title: "",
     },
     experiences: [],
     skills: {
@@ -497,7 +498,7 @@ export default function Home() {
         onClose={() => setShowPaymentModal(false)}
         onSuccess={handlePaymentSuccess}
         cvDataId={cvDataId}
-        amount={10} // Price in BRL
+        amount={4.97} // Price in BRL
       />
 
       <SuccessModal

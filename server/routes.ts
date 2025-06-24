@@ -12,6 +12,7 @@ import { MercadoPagoConfig, Preference, Payment } from "mercadopago";
 import { db } from "./db";
 import { sql } from "drizzle-orm";
 import mercadopago from "mercadopago";
+import { mercadopagoConfig, isDevelopment, urls } from "./config";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -40,15 +41,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test environment variables endpoint
+  app.get("/api/test-env", async (req, res, next) => {
+    try {
+      res.json({ 
+        success: true, 
+        env: {
+          MERCADO_PAGO_ACCESS_TOKEN: process.env.MERCADO_PAGO_ACCESS_TOKEN ? "Definido" : "Não definido",
+          VITE_MERCADO_PAGO_PUBLIC_KEY: process.env.VITE_MERCADO_PAGO_PUBLIC_KEY ? "Definido" : "Não definido",
+          DATABASE_URL: process.env.DATABASE_URL ? "Definido" : "Não definido",
+          API_URL: process.env.API_URL,
+          FRONTEND_URL: process.env.FRONTEND_URL,
+          NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
+        }
+      });
+    } catch (error) {
+      console.error("Environment test error:", error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : "Unknown error" 
+      });
+    }
+  });
+
   // Create CV data endpoint
   app.post("/api/cvs", async (req, res, next) => {
     try {
       console.log("=== Iniciando criação de CV ===");
       console.log("Dados recebidos:", JSON.stringify(req.body, null, 2));
       
+      // Adiciona valores padrão para campos obrigatórios que podem não ser enviados
+      const dataWithDefaults = {
+        ...req.body,
+        education: req.body.education || [],
+        languages: req.body.languages || [],
+      };
+      
+      console.log("Dados com valores padrão:", JSON.stringify(dataWithDefaults, null, 2));
+      
       let validatedData;
       try {
-        validatedData = insertCvDataSchema.parse(req.body);
+        validatedData = insertCvDataSchema.parse(dataWithDefaults);
         console.log("Dados validados com sucesso:", JSON.stringify(validatedData, null, 2));
       } catch (validationError) {
         console.error("Erro na validação:", validationError);
@@ -255,21 +288,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create Preference endpoint for Mercado Pago
+  // Create Preference endpoint for Mercado Pago (Simplificado para desenvolvimento)
   app.post("/api/create-preference", async (req, res) => {
     try {
       console.log("=== Recebendo requisição de criação de preferência ===");
       console.log("Body recebido:", req.body);
-      console.log("Token de acesso:", process.env.MERCADO_PAGO_ACCESS_TOKEN ? "Presente" : "Ausente");
+      console.log("Ambiente:", isDevelopment ? "DESENVOLVIMENTO" : "PRODUÇÃO");
 
-      if (!process.env.MERCADO_PAGO_ACCESS_TOKEN) {
-        console.error("Token de acesso do Mercado Pago não configurado");
-        return res.status(500).json({ error: "Mercado Pago não configurado" });
+      // Para desenvolvimento, vamos simular uma preferência de pagamento
+      if (isDevelopment) {
+        console.log("Modo desenvolvimento: simulando preferência de pagamento");
+        
+        const { cvDataId, title, unit_price } = req.body;
+        
+        if (!cvDataId) {
+          console.error("cvDataId é obrigatório");
+          return res.status(400).json({ 
+            error: "cvDataId é obrigatório"
+          });
+        }
+
+        const price = unit_price || 4.97;
+        const itemTitle = title || "Currículo DestacaCV";
+
+        // Simular criação de preferência
+        const mockPreferenceId = `mock_pref_${Date.now()}_${cvDataId}`;
+        
+        console.log("Preferência simulada criada:", {
+          id: mockPreferenceId,
+          cvDataId,
+          title: itemTitle,
+          price,
+          status: "created"
+        });
+
+        // Retornar preferência simulada
+        res.json({ 
+          id: mockPreferenceId,
+          status: "created",
+          message: "Preferência simulada para desenvolvimento"
+        });
+        return;
       }
+
+      // Para produção, usar Mercado Pago real
+      console.log("Modo produção: usando Mercado Pago real");
+      console.log("Configuração Mercado Pago:", {
+        accessToken: mercadopagoConfig.accessToken.substring(0, 10) + "...",
+        publicKey: mercadopagoConfig.publicKey.substring(0, 10) + "...",
+        isTestToken: mercadopagoConfig.accessToken.startsWith('TEST-')
+      });
 
       try {
         const client = new MercadoPagoConfig({ 
-          accessToken: process.env.MERCADO_PAGO_ACCESS_TOKEN 
+          accessToken: mercadopagoConfig.accessToken
         });
         console.log("Cliente Mercado Pago configurado com sucesso");
         
@@ -279,55 +351,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Validação dos dados recebidos
         const { cvDataId, title, unit_price } = req.body;
         
-        if (!cvDataId || !title || !unit_price) {
-          console.error("Dados inválidos:", { cvDataId, title, unit_price });
+        if (!cvDataId) {
+          console.error("cvDataId é obrigatório");
           return res.status(400).json({ 
-            error: "Dados inválidos",
-            details: {
-              cvDataId: !cvDataId ? "ID do currículo é obrigatório" : undefined,
-              title: !title ? "Título é obrigatório" : undefined,
-              unit_price: !unit_price ? "Preço é obrigatório" : undefined
-            }
+            error: "cvDataId é obrigatório"
           });
         }
 
-        console.log("Valor de NEXT_PUBLIC_BASE_URL:", process.env.NEXT_PUBLIC_BASE_URL);
-        const backUrls = {
-          success: `${process.env.NEXT_PUBLIC_BASE_URL}/success`,
-          failure: `${process.env.NEXT_PUBLIC_BASE_URL}/failure`,
-          pending: `${process.env.NEXT_PUBLIC_BASE_URL}/pending`,
-        };
-        console.log("Objeto enviado para preference.create:", {
-          items: [
-            {
-              title,
-              unit_price: Number(unit_price),
-              quantity: 1,
-              currency_id: "BRL",
-            },
-          ],
-          back_urls: backUrls,
-          auto_return: "approved",
+        const price = unit_price || 4.97;
+        const itemTitle = title || "Currículo DestacaCV";
+
+        console.log("Criando preferência com:", {
+          cvDataId,
+          title: itemTitle,
+          price,
+          isTestToken: mercadopagoConfig.accessToken.startsWith('TEST-')
         });
-        const result = await preference.create({
+
+        const preferenceData = {
           body: {
             items: [
               {
-                title,
-                unit_price: Number(unit_price),
+                id: cvDataId.toString(),
+                title: itemTitle,
                 quantity: 1,
+                unit_price: price,
                 currency_id: "BRL",
               },
             ],
-            back_urls: backUrls,
+            payment_methods: {
+                excluded_payment_methods: [],
+                excluded_payment_types: [
+                    { id: "credit_card" },
+                    { id: "debit_card" },
+                    { id: "ticket" },
+                    { id: "prepaid_card" },
+                    { id: "atm" }
+                ],
+                installments: 1
+            },
+            external_reference: cvDataId.toString(),
+            notification_url: `${urls.api}/api/payment-webhook`,
+            expires: true,
+            expiration_date_to: new Date(Date.now() + 30 * 60 * 1000).toISOString(), // 30 minutos
+            back_urls: {
+              success: `${urls.frontend}/success`,
+              failure: `${urls.frontend}/failure`,
+              pending: `${urls.frontend}/pending`
+            },
             auto_return: "approved",
           }
-        });
+        };
 
-        console.log("Preferência criada com sucesso:", result);
-        res.json(result);
+        console.log("Dados da preferência a serem enviados:", JSON.stringify(preferenceData, null, 2));
+
+        const result = await preference.create(preferenceData);
+
+        console.log("Preferência criada com sucesso:", result.id);
+        res.json({ id: result.id });
       } catch (mpError) {
         console.error("Erro específico do Mercado Pago:", mpError);
+        
+        // Log detalhado do erro
+        if (mpError instanceof Error) {
+          console.error('Error message:', mpError.message);
+          console.error('Error stack:', mpError.stack);
+        }
+        
+        // Se for erro de autenticação, pode ser token inválido
+        if (mpError instanceof Error && mpError.message.includes('401')) {
+          console.error('Erro 401: Token de acesso inválido ou expirado');
+          return res.status(500).json({ 
+            error: "Token de acesso do Mercado Pago inválido",
+            details: "Verifique se o token está correto e se é um token de teste válido"
+          });
+        }
+        
         throw mpError;
       }
     } catch (error) {
@@ -340,16 +439,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Payment webhook endpoint for Mercado Pago
-  app.post("/api/payments/webhook", async (req, res, next) => {
+  app.post("/api/payment-webhook", async (req, res, next) => {
     try {
+      console.log("=== Webhook recebido ===");
+      console.log("Headers:", req.headers);
+      console.log("Body:", JSON.stringify(req.body, null, 2));
+
+      // Validação da assinatura do webhook (recomendado pelo Mercado Pago)
+      const signature = req.headers['x-signature'] as string;
+      const timestamp = req.headers['x-timestamp'] as string;
+      
+      if (signature && timestamp) {
+        console.log("Assinatura recebida:", signature);
+        console.log("Timestamp recebido:", timestamp);
+        // TODO: Implementar validação da assinatura se necessário
+        // const isValidSignature = validateWebhookSignature(signature, timestamp, req.body);
+        // if (!isValidSignature) {
+        //   console.error("Assinatura inválida do webhook");
+        //   return res.status(401).json({ error: "Invalid signature" });
+        // }
+      }
+
       const { type, data } = req.body;
 
       if (type === "payment") {
+        const paymentId = data.id;
+        console.log("Processando pagamento ID:", paymentId);
+
         const paymentClient = new Payment(mercadopagoClient);
         const payment = await paymentClient.get({ id: data.id });
         
+        console.log("Informações do pagamento:", {
+          id: payment.id,
+          status: payment.status,
+          external_reference: payment.external_reference,
+          payment_method_id: payment.payment_method_id,
+          payment_type_id: payment.payment_type_id
+        });
+        
         if (payment && payment.external_reference && payment.status === "approved") {
           const cvDataId = parseInt(payment.external_reference);
+          console.log(`Atualizando status do cvDataId ${cvDataId} para approved`);
+          
           await storage.updateCvDataPaymentStatus(cvDataId, "paid");
           
           const paymentData = insertPaymentSchema.parse({
@@ -359,11 +490,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
             externalId: payment.id?.toString(),
           })
           await storage.createPayment(paymentData);
+          
+          console.log(`Pagamento para cvDataId ${cvDataId} aprovado e atualizado com sucesso.`);
+        } else {
+          console.log("Pagamento não aprovado ou sem external_reference:", {
+            status: payment?.status,
+            external_reference: payment?.external_reference
+          });
         }
+      } else if (type === "merchant_order") {
+        console.log("Evento merchant_order recebido:", data);
+        // TODO: Implementar processamento de merchant_order se necessário
+      } else if (type === "topic_claims_integration_wh") {
+        console.log("Evento de reclamação recebido:", data);
+        // TODO: Implementar processamento de reclamações se necessário
+      } else {
+        console.log("Tipo de webhook não suportado:", type);
       }
 
       res.status(200).json({ success: true });
     } catch (error) {
+      console.error('Erro ao processar webhook:', error);
+      
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
+      
       next(error);
     }
   });

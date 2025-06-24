@@ -15,8 +15,8 @@ export const cvData = pgTable("cv_data", {
   personalData: jsonb("personal_data").notNull(),
   experiences: jsonb("experiences").notNull(),
   skills: jsonb("skills").notNull(),
-  education: jsonb("education").notNull(),
-  languages: jsonb("languages").notNull(),
+  education: jsonb("education").notNull().default('[]'),
+  languages: jsonb("languages").notNull().default('[]'),
   pdfUrl: text("pdf_url"),
   linkedinSummary: text("linkedin_summary"),
   coverLetter: text("cover_letter"),
@@ -57,8 +57,24 @@ const skillSchema = z.object({
   soft: z.array(z.string()),
 })
 
+const educationSchema = z.array(z.object({
+  institution: z.string(),
+  degree: z.string(),
+  field: z.string(),
+  startDate: z.string(),
+  endDate: z.string().optional(),
+  description: z.string().optional(),
+})).default([]);
+
+const languageSchema = z.array(z.object({
+  name: z.string(),
+  level: z.string(),
+})).default([]);
+
 export const insertCvDataSchema = createInsertSchema(cvData, {
   skills: skillSchema,
+  education: educationSchema,
+  languages: languageSchema,
 }).omit({
   id: true,
   createdAt: true,
