@@ -71,29 +71,49 @@ export function PersonalDataStep({ data, onUpdate }: PersonalDataStepProps) {
               />
             </div>
           </div>
-          <div>
-            <Label className="text-sm font-medium text-incluo-navy mb-2">
-              Endereço Completo *
-            </Label>
-            <Textarea
-              placeholder="Rua, número, bairro, cidade, estado, CEP"
-              value={data.address}
-              onChange={(e) => handleChange("address", e.target.value)}
-              className="focus:ring-2 focus:ring-incluo-orange focus:border-transparent h-24 resize-none"
-            />
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <Label className="text-sm font-medium text-incluo-navy mb-2">
+                Endereço
+              </Label>
+              <Input
+                placeholder="Ex: São Paulo, SP, Brasil"
+                value={data.address}
+                onChange={(e) => handleChange("address", e.target.value)}
+                className="focus:ring-2 focus:ring-incluo-orange focus:border-transparent"
+              />
+              <p className="text-xs text-incluo-gray mt-2">
+                Apenas a cidade e estado são suficientes. Usado para vagas na sua região.
+              </p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-incluo-navy mb-2">
+                Cargo ou Título
+              </Label>
+              <Input
+                type="text"
+                placeholder="Ex: Desenvolvedor(a) Full-Stack Sênior"
+                value={data.title}
+                onChange={(e) => handleChange("title", e.target.value)}
+                className="focus:ring-2 focus:ring-incluo-orange focus:border-transparent"
+              />
+              <p className="text-xs text-incluo-gray mt-2">
+                O título que aparece logo abaixo do seu nome.
+              </p>
+            </div>
           </div>
           <div>
             <Label className="text-sm font-medium text-incluo-navy mb-2">
               Resumo Profissional *
             </Label>
             <Textarea
-              placeholder="Descreva brevemente sua experiência e objetivos profissionais..."
+              placeholder="Faça um resumo de 2 a 4 parágrafos sobre sua trajetória, principais habilidades e objetivos. Este é um dos campos mais importantes!"
               value={data.summary}
               onChange={(e) => handleChange("summary", e.target.value)}
-              className="focus:ring-2 focus:ring-incluo-orange focus:border-transparent h-32 resize-none"
+              className="focus:ring-2 focus:ring-incluo-orange focus:border-transparent h-40 resize-none"
             />
-            <p className="text-sm text-incluo-gray mt-2">
-              Este texto será usado para gerar seu resumo do LinkedIn automaticamente.
+            <p className="text-xs text-incluo-gray mt-2">
+              Capriche! Usaremos este texto como base para a inteligência artificial criar uma carta de apresentação e um resumo para o seu LinkedIn.
             </p>
           </div>
         </div>

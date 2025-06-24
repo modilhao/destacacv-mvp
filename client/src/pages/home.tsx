@@ -10,12 +10,16 @@ import { ReviewStep } from "@/components/wizard/review-step";
 import { PaymentModal } from "@/components/payment-modal";
 import { SuccessModal } from "@/components/success-modal";
 import { CVData } from "@/types/cv-data";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Home() {
   const [showWizard, setShowWizard] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [cvDataId, setCvDataId] = useState<number | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const { toast } = useToast();
   const [cvData, setCvData] = useState<CVData>({
     personalData: {
       name: "",
@@ -55,13 +59,131 @@ export default function Home() {
     }
   };
 
-  const handleOpenPayment = () => {
-    setShowPaymentModal(true);
+  const handleOpenPayment = async () => {
+    try {
+      // First, save the current CV data to get an ID
+      const response = await fetch("/api/cvs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...cvData,
+          email: cvData.personalData.email,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Falha ao salvar os dados do currículo.");
+      }
+
+      const savedCv = await response.json();
+      setCvDataId(savedCv.id); // Save the returned ID
+      setShowPaymentModal(true); // Now open the modal
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Erro",
+        description:
+          "Houve um problema ao iniciar o processo de pagamento. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handlePaymentSuccess = () => {
+  const handlePaymentSuccess = async () => {
+    setIsGenerating(true);
     setShowPaymentModal(false);
-    setShowSuccessModal(true);
+
+    try {
+      const response = await fetch("/api/generate-texts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          personalData: cvData.personalData,
+          experiences: cvData.experiences,
+          skills: [
+            ...cvData.skills.technical.map((skillName) => ({ name: skillName })),
+            ...cvData.skills.soft.map((skillName) => ({ name: skillName })),
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Falha ao gerar os textos. Tente novamente.");
+      }
+
+      const generatedTexts = await response.json();
+
+      // Update state with generated texts
+      const updatedCvData = {
+        ...cvData,
+        linkedinSummary: generatedTexts.linkedinSummary,
+        coverLetter: generatedTexts.coverLetter,
+      };
+      setCvData(updatedCvData);
+
+      // Now, generate the PDF
+      const pdfResponse = await fetch("/api/generate-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedCvData),
+      });
+
+      if (!pdfResponse.ok) {
+        throw new Error("Falha ao gerar o PDF.");
+      }
+
+      const pdfBlob = await pdfResponse.blob();
+      const url = window.URL.createObjectURL(pdfBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "curriculo-destaca-cv.pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+      // --- Generate auxiliary documents ---
+      const docsResponse = await fetch("/api/generate-documents", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          linkedinSummary: updatedCvData.linkedinSummary,
+          coverLetter: updatedCvData.coverLetter,
+        }),
+      });
+
+      if (!docsResponse.ok) {
+        // We can choose to just log this error and not block the user,
+        // as the main CV was already generated.
+        console.error("Falha ao gerar os documentos auxiliares.");
+        toast({
+          title: "Aviso",
+          description: "Seu currículo foi gerado, mas houve um problema ao criar os documentos auxiliares. Contate o suporte se precisar.",
+          variant: "default",
+        })
+      } else {
+        const docsBlob = await docsResponse.blob();
+        const docsUrl = window.URL.createObjectURL(docsBlob);
+        const docsLink = document.createElement("a");
+        docsLink.href = docsUrl;
+        docsLink.download = "documentos-auxiliares.pdf";
+        document.body.appendChild(docsLink);
+        docsLink.click();
+        docsLink.remove();
+        window.URL.revokeObjectURL(docsUrl);
+      }
+      
+      setShowSuccessModal(true);
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Erro",
+        description: "Houve um problema ao gerar seus documentos. Por favor, entre em contato com o suporte.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const renderCurrentStep = () => {
@@ -104,7 +226,15 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 relative">
+      {isGenerating && (
+        <div className="fixed inset-0 bg-white bg-opacity-90 flex flex-col items-center justify-center z-50 transition-opacity duration-300">
+          <Rocket className="text-incluo-orange h-16 w-16 animate-bounce" />
+          <h2 className="text-2xl font-bold text-incluo-navy mt-6">Gerando seus documentos...</h2>
+          <p className="text-lg text-incluo-gray mt-2">Isso pode levar alguns segundos. Não feche esta página.</p>
+        </div>
+      )}
+
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -334,7 +464,8 @@ export default function Home() {
         isOpen={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
         onSuccess={handlePaymentSuccess}
-        amount={2990} // R$ 29,90 in cents
+        cvDataId={cvDataId}
+        amount={10} // Price in BRL
       />
 
       <SuccessModal

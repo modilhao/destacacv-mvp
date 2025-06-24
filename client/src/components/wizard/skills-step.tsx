@@ -145,6 +145,9 @@ export function SkillsStep({
                 <Plus size={16} />
               </Button>
             </div>
+            <p className="text-xs text-incluo-gray mt-2">
+              Ex: React, Node.js, Gestão de Projetos, Power BI, etc.
+            </p>
           </div>
 
           {/* Soft Skills */}
@@ -183,6 +186,9 @@ export function SkillsStep({
                 <Plus size={16} />
               </Button>
             </div>
+            <p className="text-xs text-incluo-gray mt-2">
+              Ex: Comunicação, Trabalho em Equipe, Liderança, Resolução de Problemas, etc.
+            </p>
           </div>
 
           {/* Education */}
@@ -195,46 +201,54 @@ export function SkillsStep({
                 <div key={index} className="border border-gray-200 rounded-lg p-4">
                   <div className="grid md:grid-cols-2 gap-4 mb-4">
                     <Input
-                      placeholder="Curso/Graduação"
+                      placeholder="Ex: Bacharelado em Ciência da Computação"
                       value={edu.course}
                       onChange={(e) => updateEducation(index, "course", e.target.value)}
                       className="focus:ring-2 focus:ring-incluo-orange focus:border-transparent"
                     />
                     <Input
-                      placeholder="Instituição"
+                      placeholder="Ex: Universidade de São Paulo (USP)"
                       value={edu.institution}
                       onChange={(e) => updateEducation(index, "institution", e.target.value)}
                       className="focus:ring-2 focus:ring-incluo-orange focus:border-transparent"
                     />
                   </div>
                   <div className="grid md:grid-cols-3 gap-4">
-                    <Input
-                      type="month"
-                      placeholder="Data de conclusão"
-                      value={edu.completionDate}
-                      onChange={(e) => updateEducation(index, "completionDate", e.target.value)}
-                      className="focus:ring-2 focus:ring-incluo-orange focus:border-transparent"
-                    />
-                    <Select
-                      value={edu.status}
-                      onValueChange={(value) => updateEducation(index, "status", value)}
-                    >
-                      <SelectTrigger className="focus:ring-2 focus:ring-incluo-orange focus:border-transparent">
-                        <SelectValue placeholder="Status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="completed">Concluído</SelectItem>
-                        <SelectItem value="ongoing">Em andamento</SelectItem>
-                        <SelectItem value="paused">Trancado</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Button
-                      variant="ghost"
-                      onClick={() => removeEducation(index)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <X size={16} />
-                    </Button>
+                    <div>
+                      <Label className="text-xs text-incluo-gray mb-1">Data de Conclusão</Label>
+                      <Input
+                        type="month"
+                        value={edu.completionDate}
+                        onChange={(e) => updateEducation(index, "completionDate", e.target.value)}
+                        className="focus:ring-2 focus:ring-incluo-orange focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-incluo-gray mb-1">Status</Label>
+                      <Select
+                        value={edu.status}
+                        onValueChange={(value) => updateEducation(index, "status", value)}
+                      >
+                        <SelectTrigger className="focus:ring-2 focus:ring-incluo-orange focus:border-transparent">
+                          <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="completed">Concluído</SelectItem>
+                          <SelectItem value="ongoing">Em andamento</SelectItem>
+                          <SelectItem value="paused">Trancado</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-end">
+                      <Button
+                        variant="ghost"
+                        onClick={() => removeEducation(index)}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <X size={16} className="mr-1" />
+                        Remover
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -272,7 +286,7 @@ export function SkillsStep({
             </div>
             <div className="grid md:grid-cols-3 gap-2">
               <Input
-                placeholder="Idioma"
+                placeholder="Ex: Inglês"
                 value={newLanguage}
                 onChange={(e) => setNewLanguage(e.target.value)}
                 className="focus:ring-2 focus:ring-incluo-orange focus:border-transparent"

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currículo de {{personalData.name}}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.5;
+            color: #333;
+            background-color: #fff;
+            margin: 0;
+            padding: 0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        .page {
+            display: flex;
+            width: 210mm;
+            height: 297mm;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .sidebar {
+            width: 35%;
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 25px;
+            box-sizing: border-box;
+        }
+        .sidebar h2 {
+            font-size: 1.2em;
+            color: #ecf0f1;
+            border-bottom: 1px solid #3498db;
+            padding-bottom: 8px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        .sidebar .contact-info p, .sidebar .skills-list p {
+            margin: 5px 0;
+            font-size: 0.9em;
+            font-weight: 300;
+        }
+        .sidebar .contact-info a {
+            color: #ecf0f1;
+            text-decoration: none;
+        }
+        .main-content {
+            width: 65%;
+            padding: 25px;
+            box-sizing: border-box;
+        }
+        .header {
+            margin-bottom: 25px;
+        }
+        .header h1 {
+            font-size: 2.8em;
+            margin: 0;
+            color: #2c3e50;
+            font-weight: 700;
+        }
+        .header .job-title {
+            font-size: 1.3em;
+            color: #34495e;
+            margin: 5px 0 10px;
+            font-weight: 500;
+        }
+        .header .location {
+            font-size: 1em;
+            color: #7f8c8d;
+            font-weight: 400;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            font-size: 1.6em;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        .section p {
+            font-size: 1em;
+            text-align: justify;
+        }
+        .experience-item, .education-item {
+            margin-bottom: 15px;
+        }
+        .experience-item h3, .education-item h3 {
+            font-size: 1.2em;
+            color: #34495e;
+            margin: 0;
+            font-weight: 500;
+        }
+        .experience-item .company-date, .education-item .institution-date {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1em;
+            font-weight: 700;
+            color: #34495e;
+            margin: 2px 0 5px;
+        }
+        .experience-item .description {
+            font-size: 0.95em;
+            color: #555;
+            font-weight: 300;
+        }
+        .break-before {
+             page-break-before: always;
+        }
+         .cover-letter-section {
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="sidebar">
+            <div class="contact-info">
+                <h2>Contato</h2>
+                <p>{{personalData.phone}} (Mobile)</p>
+                <p>{{personalData.email}}</p>
+                {{#if personalData.linkedin}}
+                <p><a href="{{personalData.linkedin}}">{{personalData.linkedin}}</a></p>
+                {{/if}}
+            </div>
+            
+            <h2>Principais competências</h2>
+            <div class="skills-list">
+                {{#each skills.soft}}
+                <p>{{this}}</p>
+                {{/each}}
+            </div>
+
+            <h2>Habilidades Técnicas</h2>
+            <div class="skills-list">
+                {{#each skills.technical}}
+                <p>{{this}}</p>
+                {{/each}}
+            </div>
+
+            <h2>Idiomas</h2>
+            <div class="languages-list">
+                 {{#each languages}}
+                <p>{{this.language}} - {{this.proficiency}}</p>
+                {{/each}}
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="header">
+                <h1>{{personalData.name}}</h1>
+                {{#if personalData.title}}
+                    <p class="job-title">{{personalData.title}}</p>
+                {{/if}}
+                {{#if personalData.address}}
+                    <p class="location">{{personalData.address}}</p>
+                {{/if}}
+            </div>
+            <div class="section">
+                <h2>Resumo</h2>
+                <p>{{personalData.summary}}</p>
+            </div>
+            <div class="section">
+                <h2>Experiência</h2>
+                {{#each experiences}}
+                <div class="experience-item">
+                    <div class="company-date">
+                        <span><strong>{{this.company}}</strong></span>
+                        <span>{{this.startDate}} - {{this.endDate}}</span>
+                    </div>
+                    <h3>{{this.position}}</h3>
+                    <p class="description">{{this.description}}</p>
+                </div>
+                {{/each}}
+            </div>
+            <div class="section">
+                <h2>Formação Acadêmica</h2>
+                {{#each education}}
+                <div class="education-item">
+                    <div class="institution-date">
+                        <span><strong>{{this.institution}}</strong></span>
+                        <span>{{this.endDate}}</span>
+                    </div>
+                    <h3>{{this.degree}}</h3>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

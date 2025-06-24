@@ -1,5 +1,6 @@
 export interface PersonalData {
   name: string;
+  title?: string;
   email: string;
   phone: string;
   linkedin?: string;

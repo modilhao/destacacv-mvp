@@ -131,11 +131,14 @@ export function ExperienceStep({ data, onUpdate }: ExperienceStepProps) {
                     Descrição das Atividades *
                   </Label>
                   <Textarea
-                    placeholder="Descreva suas principais responsabilidades e conquistas..."
+                    placeholder="Ex: Desenvolvi e mantive interfaces de usuário responsivas usando React e TypeScript, resultando em uma melhoria de 20% na performance. Colaborei em equipes ágeis para entregar novas funcionalidades..."
                     value={experience.description}
                     onChange={(e) => updateExperience(index, "description", e.target.value)}
                     className="focus:ring-2 focus:ring-incluo-orange focus:border-transparent h-32 resize-none"
                   />
+                  <p className="text-xs text-incluo-gray mt-2">
+                    Descreva suas responsabilidades e, mais importante, suas conquistas. Use números para quantificar seu impacto sempre que possível.
+                  </p>
                 </div>
                 <div className="flex justify-end">
                   <Button

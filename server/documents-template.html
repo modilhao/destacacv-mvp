@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seus Documentos de Apoio - Destaca CV</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #fff;
+            margin: 0;
+            padding: 0;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 25mm;
+            background: white;
+            box-sizing: border-box;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin: 0;
+            color: #2c3e50;
+            font-weight: 700;
+        }
+         .section {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+        .section h2 {
+            font-size: 1.8em;
+            color: #2c3e50;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        .content {
+            font-size: 1.1em;
+            text-align: justify;
+            white-space: pre-wrap; /* Preserves line breaks from the original text */
+        }
+         .cover-letter-section {
+            font-size: 1.1em;
+            text-align: justify;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <h1>Documentos de Apoio</h1>
+        </div>
+        
+        {{#if linkedinSummary}}
+        <div class="section">
+            <h2>Resumo para LinkedIn</h2>
+            <p class="content">{{linkedinSummary}}</p>
+        </div>
+        {{/if}}
+        
+        {{#if coverLetter}}
+        <div class="section">
+            <h2>Carta de Apresentação</h2>
+            <div class="cover-letter-section">
+                 {{{coverLetter}}}
+            </div>
+        </div>
+        {{/if}}
+    </div>
+</body>
+</html> 

@@ -52,7 +52,14 @@ export const insertUserSchema = createInsertSchema(users).pick({
   password: true,
 });
 
-export const insertCvDataSchema = createInsertSchema(cvData).omit({
+const skillSchema = z.object({
+  technical: z.array(z.string()),
+  soft: z.array(z.string()),
+})
+
+export const insertCvDataSchema = createInsertSchema(cvData, {
+  skills: skillSchema,
+}).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
